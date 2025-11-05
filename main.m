@@ -1,4 +1,4 @@
-% Kelompok 2
+% kelompok 2
 % Ivander 53522020, Justin Salim 535220017, Jason Chainara Putra 535220045
 
 clear; clc;
