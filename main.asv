@@ -1,0 +1,60 @@
+% Kelompok 2
+% Ivander 53522020, Justin Salim 535220017, Jason Chainara Putra 535220045
+
+clear; clc;
+rng('default'); % <- biar sama aja hasilnya setiap kali jalan tapi boleh di comment -ivander
+
+data = readmatrix('Data Tugas Resampling.xlsx', 'Range', 'C4'); 
+[n, p] = size(data);
+
+% 1. cari vektor mean + matriks covariance asli 
+mean_asli = mean(data);
+cov_asli = zeros(p, p);
+for x = 1:p 
+    for y = 1:p
+        mean_x = mean_asli(x);
+        mean_y = mean_asli(y);
+        jumlah_perkalian = 0;
+        for i = 1:n 
+            nilai_xi = data(i, x);
+            nilai_yi = data(i, y);        
+            hasil_perkalian = (nilai_xi - mean_x) * (nilai_yi - mean_y);
+            jumlah_perkalian = jumlah_perkalian + hasil_perkalian;
+        end
+        cov_asli(x, y) = jumlah_perkalian / (n - 1);
+    end
+end
+
+% 2. cari vektor mean + matriks covariance bootstrap (100 replikasi)
+% pake cara yang dari skripsi jadi pake variabel B
+B = 100;
+mean_boot_replikasi = zeros(B, p);
+cov_boot_replikasi = zeros(p, p, B);
+
+for b = 1:B
+    nomor_observasi_acak = randi(n, n, 1);
+    sampel_b = data(nomor_observasi_acak, :);
+    [n_b, ~] = size(sampel_b);
+    mean_b = mean(sampel_b);
+    mean_boot_replikasi(b, :) = mean_b;
+    
+    cov_b = zeros(p, p);
+    for x = 1:p
+        for y = 1:p
+            mean_x_b = mean_b(x);
+            mean_y_b = mean_b(y);
+            jumlah_perkalian_b = 0;
+            for i = 1:n_b
+                nilai_xi_b = sampel_b(i, x);
+                nilai_yi_b = sampel_b(i, y);
+                hasil_perkalian_b = (nilai_xi_b - mean_x_b) * (nilai_yi_b - mean_y_b);
+                jumlah_perkalian_b = jumlah_perkalian_b + hasil_perkalian_b;
+            end
+            cov_b(x, y) = jumlah_perkalian_b / (n_b - 1);
+        end
+    end
+    cov_boot_replikasi(:, :, b) = cov_b;
+end
+
+mean_boot = mean(mean_boot_replikasi, 1);
+cov_boot = mean(cov_boot_replikasi, 3);
